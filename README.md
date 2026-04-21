@@ -1,5 +1,7 @@
 # Buffet Clearers Overengineered
 
+![Hour vs day of week heatmap](docs/readme/food_patterns/03_hour_vs_day_of_week_heatmap.png)
+
 The struggle is real. So is the data.
 
 **This repo:**  
