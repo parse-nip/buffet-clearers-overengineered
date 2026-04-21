@@ -1,0 +1,187 @@
+
+import pandas as pd
+import numpy as np
+import re
+from collections import Counter
+from datetime import datetime
+
+# ── Helper: extract clean text from message ───────────────────────────────────
+def _get_text(msg):
+    raw = msg.get('text', '')
+    if isinstance(raw, list):
+        return ''.join(t if isinstance(t, str) else t.get('text', '') for t in raw)
+    return str(raw)
+
+# ── Build base DataFrame ───────────────────────────────────────────────────────
+_records = []
+for msg in food_raw_messages:
+    _txt = _get_text(msg)
+    _dt = pd.to_datetime(msg['date'])
+    _record = {
+        'msg_id':        msg['id'],
+        'datetime':      _dt,
+        'date':          _dt.date(),
+        'hour':          _dt.hour,
+        'day_of_week':   _dt.strftime('%A'),        # Monday...Sunday
+        'day_of_week_n': _dt.dayofweek,             # 0=Mon...6=Sun
+        'month':         _dt.month,
+        'year':          _dt.year,
+        'sender':        msg.get('from', 'Unknown'),
+        'has_photo':     bool(msg.get('photo')),
+        'has_location':  bool(msg.get('location_information')),
+        'text_length':   len(_txt),
+        'text':          _txt,
+        'reaction_count': sum(r['count'] for r in msg.get('reactions', [])) if msg.get('reactions') else 0,
+        'is_reply':      bool(msg.get('reply_to_message_id')),
+        'is_edited':     bool(msg.get('edited')),
+        'is_forwarded':  bool(msg.get('forwarded_from')),
+    }
+    _records.append(_record)
+
+food_df = pd.DataFrame(_records)
+
+# ── Location extraction ────────────────────────────────────────────────────────
+# Common SMU building codes and places mentioned in messages
+_location_patterns = [
+    r'\b(SOE|SCIS|SIS|SOA|SOG|SoG|SMUCCB|LKCSB|SOSS|SOLM|CIS)\b',
+    r'\b(Mochtar Riady|SMUC|Li Ka Shing|Kwa Geok Choo)\b',
+    r'[@＠]\s*([A-Za-z][A-Za-z0-9 &\'\-]{2,40})',  # @ location
+    r'\b(level|lvl|floor|L)\s*([0-9B]{1,2})\b',     # floor info
+    r'\b(canteen|cafe|foyer|lobby|atrium|rooftop|basement|corridor|seminar)\b',
+    r'\b(bencoolen|bras basah|rochor|city hall|dhoby|clarke quay|bugis)\b',  # MRT
+]
+
+def _extract_locations(text):
+    _locs = []
+    _text_lower = text.lower()
+    # @ pattern
+    _at = re.findall(r'[@＠]\s*([^\n\r,!?]{3,50})', text)
+    _locs.extend([_a.strip() for _a in _at if len(_a.strip()) > 2])
+    # Building codes
+    _codes = re.findall(r'\b(SOE|SCIS|SIS|SOA|SOG|LKCSB|SOSS|SOLM|CIS)\b', text, re.IGNORECASE)
+    _locs.extend(_codes)
+    # Floor/level
+    _floors = re.findall(r'\b(?:level|lvl|floor|L)\s*([0-9B]{1,2})\b', text, re.IGNORECASE)
+    if _floors:
+        _locs.extend([f'Level {f}' for f in _floors])
+    return '; '.join(set(_locs)) if _locs else None
+
+food_df['location_extracted'] = food_df['text'].apply(_extract_locations)
+food_df['has_at_location'] = food_df['text'].str.contains(r'[@＠]', na=False)
+
+# ── Food cleared / available indicators ───────────────────────────────────────
+_cleared_patterns = r'\b(cleared|gone|finished|done|all taken|no more|empty|finished)\b'
+_available_patterns = r'\b(available|left|remaining|more|free food|buffet|food alert)\b'
+
+food_df['is_cleared'] = food_df['text'].str.contains(_cleared_patterns, case=False, na=False)
+food_df['is_available'] = food_df['text'].str.contains(_available_patterns, case=False, na=False)
+food_df['is_food_post'] = (
+    food_df['has_photo'] |
+    food_df['has_at_location'] |
+    food_df['is_cleared'] |
+    food_df['is_available'] |
+    food_df['text'].str.contains(r'\b(food|eat|pizza|cake|noodle|rice|lunch|dinner|breakfast|snack|drink|dessert)\b', case=False, na=False)
+)
+
+# ── Time-based features (key for prediction) ──────────────────────────────────
+food_df['time_bucket'] = pd.cut(
+    food_df['hour'],
+    bins=[0, 9, 12, 14, 17, 20, 24],
+    labels=['Early Morning (0-9)', 'Morning (9-12)', 'Lunch (12-14)', 
+            'Afternoon (14-17)', 'Evening (17-20)', 'Night (20-24)'],
+    right=False
+)
+food_df['is_weekend'] = food_df['day_of_week_n'] >= 5
+
+# ── Summary statistics ─────────────────────────────────────────────────────────
+print("=" * 65)
+print("FEATURE EXTRACTION SUMMARY")
+print("=" * 65)
+print(f"\nTotal messages parsed : {len(food_df):,}")
+print(f"Date range            : {food_df['date'].min()} → {food_df['date'].max()}")
+print(f"Unique senders        : {food_df['sender'].nunique():,}")
+
+print(f"\n{'─'*65}")
+print("KEY PREDICTION FEATURES")
+print('─'*65)
+print(f"\n🕐 TIMING FEATURES:")
+print(f"  Messages with photo   : {food_df['has_photo'].sum():,} ({food_df['has_photo'].mean()*100:.1f}%)")
+print(f"  Food posts (estimated): {food_df['is_food_post'].sum():,} ({food_df['is_food_post'].mean()*100:.1f}%)")
+print(f"  'CLEARED' messages    : {food_df['is_cleared'].sum():,} ({food_df['is_cleared'].mean()*100:.1f}%)")
+print(f"  'Available' messages  : {food_df['is_available'].sum():,} ({food_df['is_available'].mean()*100:.1f}%)")
+print(f"  Weekend messages      : {food_df['is_weekend'].sum():,} ({food_df['is_weekend'].mean()*100:.1f}%)")
+
+print(f"\n📅 DAY OF WEEK DISTRIBUTION (food posts only):")
+_food_only = food_df[food_df['is_food_post']]
+_dow = _food_only['day_of_week'].value_counts()
+_dow_order = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+for _day in _dow_order:
+    _cnt = _dow.get(_day, 0)
+    _bar = '█' * (_cnt // 5)
+    print(f"  {_day:<12} {_cnt:>4} {_bar}")
+
+print(f"\n⏰ HOUR OF DAY DISTRIBUTION (food posts only):")
+_hour_counts = _food_only['hour'].value_counts().sort_index()
+for _hr, _cnt in _hour_counts.items():
+    _bar = '█' * (_cnt // 5)
+    print(f"  {_hr:02d}:00  {_cnt:>4} {_bar}")
+
+print(f"\n🕑 TIME BUCKET DISTRIBUTION (food posts only):")
+_tb = _food_only['time_bucket'].value_counts()
+for _tb_name, _cnt in _tb.sort_index().items():
+    print(f"  {str(_tb_name):<28} {_cnt:>4}")
+
+print(f"\n📍 LOCATION FEATURES:")
+_with_loc = food_df['location_extracted'].notna().sum()
+print(f"  Messages with extracted location : {_with_loc:,} ({_with_loc/len(food_df)*100:.1f}%)")
+print(f"  Messages with @ location         : {food_df['has_at_location'].sum():,} ({food_df['has_at_location'].mean()*100:.1f}%)")
+print(f"  Messages with GPS location       : {food_df['has_location'].sum():,} ({food_df['has_location'].mean()*100:.1f}%)")
+
+# Top locations from text
+_all_locs = []
+for _loc_str in food_df['location_extracted'].dropna():
+    _all_locs.extend([_l.strip() for _l in _loc_str.split(';') if _l.strip()])
+_top_locs = Counter(_all_locs).most_common(20)
+print(f"\n  Top 20 extracted locations:")
+for _loc, _cnt in _top_locs:
+    print(f"    {_loc:<40} {_cnt:>4}")
+
+print(f"\n👤 TOP 10 SENDERS (food posts):")
+_top_senders = _food_only['sender'].value_counts().head(10)
+for _sender, _cnt in _top_senders.items():
+    print(f"  {_sender:<30} {_cnt:>4}")
+
+print(f"\n{'─'*65}")
+print("FEATURE SUMMARY FOR PREDICTION MODEL")
+print('─'*65)
+print("""
+Key features identified for predicting food availability/location:
+
+TEMPORAL FEATURES (when food appears):
+  • hour             — Hour of day (0–23)
+  • day_of_week_n    — Day of week (0=Mon, 6=Sun)  
+  • is_weekend       — Boolean weekend indicator
+  • time_bucket      — Categorical time of day
+  • month            — Month (seasonality)
+  • year             — Year
+
+CONTENT FEATURES (nature of post):
+  • has_photo        — 40.3% of messages include a photo
+  • has_at_location  — Post contains '@' location marker
+  • is_food_post     — Estimated food-related message
+  • is_cleared       — Food has been cleared/taken
+  • is_available     — Food is available/remaining
+  • text_length      — Length of message text
+  • reaction_count   — Number of emoji reactions
+
+LOCATION FEATURES (where food is):
+  • location_extracted — NLP-extracted location from text
+  • has_location        — Has GPS coordinates (rare: 0.03%)
+  
+SOCIAL FEATURES:
+  • sender           — Who posted (some users post more food alerts)
+  • is_reply         — Is this a reply to another message
+""")
+
+print(f"✓ Exported: food_df ({len(food_df):,} rows × {len(food_df.columns)} cols)")
+print(f"  Columns: {list(food_df.columns)}")

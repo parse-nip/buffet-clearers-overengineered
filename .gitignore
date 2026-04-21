@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Generated charts (mirrored under docs/readme/ for the README)
+out/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+
+# Secrets
+.env
+.env.*
