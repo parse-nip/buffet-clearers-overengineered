@@ -45,6 +45,24 @@ def _stratify_if_viable(y: pd.Series, *, test_size: float = 0.2):
     return y
 
 
+def _plot_feature_importance(importances, color, title, outfile,
+                              xlabel='Feature Importance'):
+    fig, ax = plt.subplots(figsize=(9, 5))
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(BG)
+    bars = ax.barh(importances.index, importances.values, color=color, edgecolor='none')
+    bars[-1].set_color(GOLD)
+    ax.set_xlabel(xlabel, color=PRIMARY, fontsize=10)
+    ax.set_title(title, color=PRIMARY, fontsize=13, pad=12)
+    ax.tick_params(colors=PRIMARY, labelsize=9)
+    for spine in ax.spines.values():
+        spine.set_edgecolor('#444')
+    ax.xaxis.grid(True, linestyle='--', alpha=0.3)
+    ax.set_axisbelow(True)
+    plt.tight_layout()
+    save_export_or_interactive(fig, "prediction_model", outfile, facecolor=BG)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 1.  FEATURE ENGINEERING FOR MODEL
 # ─────────────────────────────────────────────────────────────────────────────
@@ -193,57 +211,26 @@ print(classification_report(y_c_test, y_c_pred,
 # 5.  VISUALISATIONS
 # ─────────────────────────────────────────────────────────────────────────────
 
-# --- Fig 1: Feature Importance – Model A (is_food_post) ----------------------
 fi_a = pd.Series(clf.feature_importances_, index=MODEL_FEATURES).sort_values()
-fig1, ax1 = plt.subplots(figsize=(9, 5))
-fig1.patch.set_facecolor(BG)
-ax1.set_facecolor(BG)
-bars = ax1.barh(fi_a.index, fi_a.values, color=COLORS[0], edgecolor='none')
-# Highlight top feature
-bars[-1].set_color(GOLD)
-ax1.set_xlabel('Feature Importance (mean decrease in impurity)', color=PRIMARY, fontsize=10)
-ax1.set_title('Feature Importance — Model A: Food Post Classifier', color=PRIMARY, fontsize=13, pad=12)
-ax1.tick_params(colors=PRIMARY, labelsize=9)
-for spine in ax1.spines.values():
-    spine.set_edgecolor('#444')
-ax1.xaxis.grid(True, linestyle='--', alpha=0.3)
-ax1.set_axisbelow(True)
-plt.tight_layout()
-save_export_or_interactive(fig1, "prediction_model", "feat_importance_clf.png", facecolor=BG)
-
-# --- Fig 2: Feature Importance – Model B (hour regression) -------------------
 fi_b = pd.Series(reg.feature_importances_, index=REG_FEATURES).sort_values()
-fig2, ax2 = plt.subplots(figsize=(9, 5))
-fig2.patch.set_facecolor(BG)
-ax2.set_facecolor(BG)
-bars2 = ax2.barh(fi_b.index, fi_b.values, color=COLORS[1], edgecolor='none')
-bars2[-1].set_color(GOLD)
-ax2.set_xlabel('Feature Importance', color=PRIMARY, fontsize=10)
-ax2.set_title('Feature Importance — Model B: Hour Prediction (Regression)', color=PRIMARY, fontsize=13, pad=12)
-ax2.tick_params(colors=PRIMARY, labelsize=9)
-for spine in ax2.spines.values():
-    spine.set_edgecolor('#444')
-ax2.xaxis.grid(True, linestyle='--', alpha=0.3)
-ax2.set_axisbelow(True)
-plt.tight_layout()
-save_export_or_interactive(fig2, "prediction_model", "feat_importance_reg.png", facecolor=BG)
-
-# --- Fig 3: Feature Importance – Model C (location) --------------------------
 fi_c = pd.Series(clf_loc.feature_importances_, index=LOC_FEATURES).sort_values()
-fig3, ax3 = plt.subplots(figsize=(9, 5))
-fig3.patch.set_facecolor(BG)
-ax3.set_facecolor(BG)
-bars3 = ax3.barh(fi_c.index, fi_c.values, color=COLORS[2], edgecolor='none')
-bars3[-1].set_color(GOLD)
-ax3.set_xlabel('Feature Importance', color=PRIMARY, fontsize=10)
-ax3.set_title('Feature Importance — Model C: Location Predictor', color=PRIMARY, fontsize=13, pad=12)
-ax3.tick_params(colors=PRIMARY, labelsize=9)
-for spine in ax3.spines.values():
-    spine.set_edgecolor('#444')
-ax3.xaxis.grid(True, linestyle='--', alpha=0.3)
-ax3.set_axisbelow(True)
-plt.tight_layout()
-save_export_or_interactive(fig3, "prediction_model", "feat_importance_loc.png", facecolor=BG)
+
+_plot_feature_importance(
+    fi_a, COLORS[0],
+    'Feature Importance — Model A: Food Post Classifier',
+    'feat_importance_clf.png',
+    xlabel='Feature Importance (mean decrease in impurity)',
+)
+_plot_feature_importance(
+    fi_b, COLORS[1],
+    'Feature Importance — Model B: Hour Prediction (Regression)',
+    'feat_importance_reg.png',
+)
+_plot_feature_importance(
+    fi_c, COLORS[2],
+    'Feature Importance — Model C: Location Predictor',
+    'feat_importance_loc.png',
+)
 
 # --- Fig 4: Confusion Matrix – Model A ----------------------------------------
 _cm = confusion_matrix(y_a_test, y_a_pred)
@@ -300,7 +287,6 @@ ax6.set_facecolor(BG)
 _hours = _hourly_prob.index.tolist()
 _probs = _hourly_prob.values
 
-# Color bars by probability level
 _bar_colors = [GREEN if p >= 0.6 else (GOLD if p >= 0.4 else COLORS[0]) for p in _probs]
 ax6.bar(_hours, _probs, color=_bar_colors, edgecolor='none', width=0.75)
 ax6.axhline(0.5, color=RED, linewidth=1.2, linestyle='--', label='Decision threshold (0.5)')

@@ -3,12 +3,9 @@ import json
 import os
 import urllib.error
 import urllib.request
-from collections import Counter
 from pathlib import Path
 
 import boto3
-
-# ── Resolve Telegram export: local file first, else S3 via metadata API ───────
 
 
 def _project_root() -> Path:
@@ -46,36 +43,39 @@ def _load_chat_export_from_s3() -> dict:
     return json.loads(_obj["Body"].read().decode("utf-8"))
 
 
-_env_path = os.environ.get("BUFFET_CHAT_EXPORT")
-_data_dir = _project_root() / "data"
-_default_local = _data_dir / "chat_export.json"
-_telegram_result = _data_dir / "result.json"
-_sample_fixture = _data_dir / "chat_export.sample.json"
+def _load_chat_export() -> dict:
+    _data_dir = _project_root() / "data"
+    _env_path = os.environ.get("BUFFET_CHAT_EXPORT")
 
-if _env_path:
-    _chat_path = Path(_env_path).expanduser().resolve()
-    if not _chat_path.is_file():
-        raise FileNotFoundError(
-            f"BUFFET_CHAT_EXPORT is set but file not found: {_chat_path}"
+    if _env_path:
+        _chat_path = Path(_env_path).expanduser().resolve()
+        if not _chat_path.is_file():
+            raise FileNotFoundError(
+                f"BUFFET_CHAT_EXPORT is set but file not found: {_chat_path}"
+            )
+        print(f"Loading chat export from BUFFET_CHAT_EXPORT={_chat_path}")
+        return _load_chat_export_from_path(_chat_path)
+
+    _default_local = _data_dir / "chat_export.json"
+    _telegram_result = _data_dir / "result.json"
+    _sample_fixture = _data_dir / "chat_export.sample.json"
+
+    if _default_local.is_file():
+        print(f"Loading chat export from {_default_local}")
+        return _load_chat_export_from_path(_default_local)
+    if _telegram_result.is_file():
+        print(f"Loading chat export from {_telegram_result}")
+        return _load_chat_export_from_path(_telegram_result)
+    if _sample_fixture.is_file():
+        print(
+            f"Loading bundled sample data from {_sample_fixture} "
+            "(add data/chat_export.json or set BUFFET_CHAT_EXPORT for your real export)"
         )
-    print(f"Loading chat export from BUFFET_CHAT_EXPORT={_chat_path}")
-    _chat_export = _load_chat_export_from_path(_chat_path)
-elif _default_local.is_file():
-    print(f"Loading chat export from {_default_local}")
-    _chat_export = _load_chat_export_from_path(_default_local)
-elif _telegram_result.is_file():
-    print(f"Loading chat export from {_telegram_result}")
-    _chat_export = _load_chat_export_from_path(_telegram_result)
-elif _sample_fixture.is_file():
-    print(
-        f"Loading bundled sample data from {_sample_fixture} "
-        "(add data/chat_export.json or set BUFFET_CHAT_EXPORT for your real export)"
-    )
-    _chat_export = _load_chat_export_from_path(_sample_fixture)
-else:
+        return _load_chat_export_from_path(_sample_fixture)
+
     try:
         print("Loading chat export from S3 (Lambda metadata API + boto3)…")
-        _chat_export = _load_chat_export_from_s3()
+        return _load_chat_export_from_s3()
     except (urllib.error.URLError, OSError, ConnectionRefusedError) as e:
         raise RuntimeError(
             "Cannot load chat data: no local export found and metadata service unreachable "
@@ -83,7 +83,9 @@ else:
             "set BUFFET_CHAT_EXPORT, or add data/chat_export.sample.json."
         ) from e
 
+
 # ── Parse messages ────────────────────────────────────────────────────────────
+_chat_export = _load_chat_export()
 _all_msgs = _chat_export["messages"]
 food_raw_messages = [m for m in _all_msgs if m.get("type") == "message"]
 food_chat_name = _chat_export["name"]

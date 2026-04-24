@@ -1,8 +1,6 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-import numpy as np
 
 from graph_output import save_and_close_if_exporting
 
@@ -46,13 +44,11 @@ dow_counts = food_posts["day_of_week"].value_counts().reindex(day_order, fill_va
 
 chart_dow = plt.figure(figsize=(9, 5), facecolor=VIZ_BG)
 ax = chart_dow.add_subplot(111)
-ax.set_facecolor(VIZ_BG)
 
 bars_dow = ax.bar(dow_counts.index, dow_counts.values,
                   color=[VIZ_COLORS[i % len(VIZ_COLORS)] for i in range(7)],
                   width=0.65, zorder=3)
 
-# Value labels on bars
 for bar in bars_dow:
     h = bar.get_height()
     ax.text(bar.get_x() + bar.get_width() / 2, h + 1, str(int(h)),
@@ -117,7 +113,6 @@ hour_day_pivot = (food_posts.groupby(["day_of_week","hour"])
                   .size()
                   .unstack(fill_value=0)
                   .reindex(day_order, fill_value=0))
-# Ensure all 24 hours exist
 hour_day_pivot = hour_day_pivot.reindex(columns=range(24), fill_value=0)
 
 chart_hour_hm = plt.figure(figsize=(13, 5), facecolor=VIZ_BG)
@@ -159,12 +154,10 @@ monthly["label"] = monthly["month_period"].astype(str)
 
 chart_monthly = plt.figure(figsize=(12, 5), facecolor=VIZ_BG)
 ax4 = chart_monthly.add_subplot(111)
-ax4.set_facecolor(VIZ_BG)
 
 ax4.plot(range(len(monthly)), monthly["count"], color=VIZ_COLORS[0],
          linewidth=2.2, marker="o", markersize=5, zorder=3, label="Monthly alerts")
 
-# Rolling 3-month average
 if len(monthly) >= 3:
     rolling_avg = monthly["count"].rolling(3, center=True).mean()
     ax4.plot(range(len(monthly)), rolling_avg, color=VIZ_GOLD,
@@ -197,9 +190,7 @@ sender_counts = food_posts["sender"].value_counts().head(top_n)
 
 chart_senders = plt.figure(figsize=(10, 6), facecolor=VIZ_BG)
 ax5 = chart_senders.add_subplot(111)
-ax5.set_facecolor(VIZ_BG)
 
-# Horizontal bar for readability
 colors_top = [VIZ_GOLD if i == 0 else VIZ_COLORS[i % len(VIZ_COLORS)]
               for i in range(len(sender_counts))]
 bars_s = ax5.barh(sender_counts.index[::-1], sender_counts.values[::-1],

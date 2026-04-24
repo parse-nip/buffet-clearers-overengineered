@@ -42,7 +42,7 @@ def main() -> int:
         sys.path.insert(0, str(ROOT))
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    for sub in ("food_patterns", "weekly_alerts", "prediction_model"):
+    for sub in ("food_patterns", "weekly_alerts", "prediction_model", "clustering"):
         (OUT_DIR / sub).mkdir(parents=True, exist_ok=True)
 
     ns: dict = {"__name__": "__main__"}
@@ -52,6 +52,7 @@ def main() -> int:
         "food_pattern.py",
         "weekly_alert.py",
         "prediction_model.py",
+        "clustering.py",
     )
     for script_name in steps:
         path = SRC / script_name
