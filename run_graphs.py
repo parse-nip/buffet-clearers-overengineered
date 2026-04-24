@@ -41,7 +41,11 @@ def main() -> int:
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
 
+    if OUT_DIR.exists():
+        shutil.rmtree(OUT_DIR)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    if README_DOCS.exists():
+        shutil.rmtree(README_DOCS)
     for sub in ("food_patterns", "weekly_alerts", "prediction_model", "clustering"):
         (OUT_DIR / sub).mkdir(parents=True, exist_ok=True)
 

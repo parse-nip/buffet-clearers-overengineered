@@ -80,6 +80,44 @@ Outputs are written under `out/`, grouped by category. A manifest of generated P
 
 ![Probability by hour](docs/readme/prediction_model/prob_by_hour.png)
 
+### Clustering
+
+![K selection](docs/readme/clustering/01_k_selection.png)
+
+Explanation: This chart compares silhouette scores for different `K` values. The script now prefers the smallest `K` that is close to the best score, so it does not split one real pattern into two nearly identical clusters.
+
+Conclusion: The clustering now chooses a simpler and more readable solution, which avoids the old problem where two clusters looked almost the same.
+
+![Cluster summary table](docs/readme/clustering/02_cluster_summary_table.png)
+
+Explanation: This table gives the main result directly: cluster names, share of posts, peak hours, strongest days, weekend share, and strongest months.
+
+Conclusion: The output is now easier to interpret because the clusters are described as real timing patterns instead of just `Cluster 0`, `Cluster 1`, and `Cluster 2`.
+
+![Cluster hour profiles](docs/readme/clustering/03_hour_profiles.png)
+
+Explanation: This line chart shows the hourly shape of each cluster as a percentage of that cluster.
+
+Conclusion: One cluster is clearly lunch-centered, while the others are evening-centered. This is a more meaningful split than the previous version.
+
+![Cluster day profiles](docs/readme/clustering/04_day_profiles.png)
+
+Explanation: This grouped bar chart compares which days of the week each cluster is strongest on.
+
+Conclusion: The clustering is now intentionally simplified into a lunch-centered pattern and one combined evening pattern.
+
+![Cluster heatmaps](docs/readme/clustering/05_hour_day_heatmaps.png)
+
+Explanation: These small heatmaps show the full shape of each cluster across both hour and day of week.
+
+Conclusion: The two cluster shapes are now visually distinct: lunch / early afternoon and evening.
+
+![Cluster month profiles](docs/readme/clustering/06_month_profiles.png)
+
+Explanation: This chart compares the monthly makeup of each cluster. Month is now used only for explanation, not to create the clusters.
+
+Conclusion: Seasonal differences still exist, but they are treated as explanation instead of forcing the model to produce duplicate-looking clusters.
+
 ---
 
 After you run the pipeline, `out/manifest.json` lists every PNG path under `out/` for that run, and `docs/readme/` is refreshed to match.
