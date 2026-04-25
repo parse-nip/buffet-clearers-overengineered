@@ -123,3 +123,18 @@ buffet-clearers-overengineered/
 - **User prompt:** "I want clusterings using 2 or more of these metrics: day of week, time of day, month of year, etc right now they are hard to understand make them simpler"
 - **Files modified:** `src/clustering.py`
 - **Summary:** Replaced PCA scatter and standardised heatmap with hour×day jitter scatter and time-bucket % profile. Features narrowed to temporal-only. All axes now use readable human labels.
+
+### 2026-04-25 03:12 — Rewrite clustering and location README sections
+- **User prompt:** "acctually update every image in clustering and location and explain it and the insights in the readme"
+- **Files modified:** `README.md`
+- **Summary:** Replaced the generic Explanation/Conclusion boilerplate on all 6 clustering charts with data-driven insights (exact numbers from charts: silhouette scores, cluster percentages, peak hours, Friday dominance, academic calendar troughs). Expanded the Location analysis section from 2 placeholder images to all 8 charts (01–08) with specific observations per chart — building counts, floor hotspots, room type ratios, per-building home floors, and room-type timing patterns.
+
+### 2026-04-25 03:07 — Add location charts to README
+- **User prompt:** "update these location images 4 and 7 in the readme, and also clustering image 5"
+- **Files modified:** `README.md`
+- **Summary:** Added a new "Location analysis" section to the README gallery with `location_viz/04_building_by_day_of_week.png` and `location_viz/07_building_floor_heatmap.png`. Clustering image 5 was already present so no change was needed there.
+
+### 2026-04-25 02:54 — Add location visualizations (Step 7)
+- **User prompt:** "Make another set of visualizations that use the location in smu, so I want you to extract it separately for each message, if it has scis, soe, scis2, sob, smu connex, soss, sol, lks. these are the buildings search online for all other variations of these and also the room type, sr, cr, etc. and also the floor and room, so 3-2 means its on the 3rd floor 2nd room. search online for all the ways we can write this and make some visualizations for the location by frequency, date, by time, by day of week etc"
+- **Files modified:** `src/location_viz.py` (created), `run_graphs.py`
+- **Summary:** Created `src/location_viz.py` as Step 7. Extracts building (11 canonical labels: SOE, SCIS, SCIS2, SOA, SOB/LKCSB, Connexion, SOSS/CIS, SOL, LKS Library, Admin, OSL), room type (SR, CR, GSR, ALC, Lounge, Function Room, Meeting Pod, Lab, Hall, Auditorium, Event Space, Training Room), floor (B2–7), and room code (e.g. B1-01, 3-16) from message text using regex patterns that cover all student shorthand variations. Produces 8 charts to `out/location_viz/`: building frequency bar, room type frequency bar, floor distribution bar, building×day heatmap, building×hour heatmap (row-normalised), building over time stacked area, building×floor heatmap, room type×hour heatmap. Updated `run_graphs.py` to add `location_viz/` subfolder and `location_viz.py` as the final pipeline step.

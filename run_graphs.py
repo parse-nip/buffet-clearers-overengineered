@@ -46,7 +46,7 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     if README_DOCS.exists():
         shutil.rmtree(README_DOCS)
-    for sub in ("food_patterns", "weekly_alerts", "prediction_model", "clustering"):
+    for sub in ("food_patterns", "weekly_alerts", "prediction_model", "clustering", "location_viz"):
         (OUT_DIR / sub).mkdir(parents=True, exist_ok=True)
 
     ns: dict = {"__name__": "__main__"}
@@ -57,6 +57,7 @@ def main() -> int:
         "weekly_alert.py",
         "prediction_model.py",
         "clustering.py",
+        "location_viz.py",
     )
     for script_name in steps:
         path = SRC / script_name
