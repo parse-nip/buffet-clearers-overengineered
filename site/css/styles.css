@@ -528,13 +528,13 @@ body {
 
 .tg-modal__note {
   font-family: var(--mono);
-  font-size: 0.68rem;
-  line-height: 1.45;
-  letter-spacing: 0.02em;
+  font-size: 0.58rem;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
   color: var(--ink-muted);
-  margin: 0.9rem 0 0;
-  max-width: 28ch;
-  opacity: 0.92;
+  margin: 0.65rem 0 0;
+  max-width: 24ch;
+  opacity: 0.88;
 }
 
 @media (prefers-reduced-motion: reduce) {
