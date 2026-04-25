@@ -7,8 +7,8 @@ __pycache__/
 venv/
 env/
 
-# Generated charts (mirrored under docs/readme/ for the README)
-out/
+# Generated charts (mirrored under docs/readme/ and site/out/ for the README and static site)
+/out/
 
 # OS / editor
 .DS_Store

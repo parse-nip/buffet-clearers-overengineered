@@ -6,6 +6,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
+from chart_json import write_chart_spec
 from graph_output import save_export_or_interactive
 
 BG = "#1D1D20"
@@ -241,6 +242,18 @@ ax1.set_title("Cluster choice - simpler K wins when scores are close", fontsize=
 style_ax(ax1, grid_axis="y")
 plt.tight_layout()
 save_export_or_interactive(fig1, "clustering", "01_k_selection.png", facecolor=BG)
+write_chart_spec(
+    "clustering",
+    "01_k_selection.png",
+    {
+        "chart": "barColored",
+        "title": "Cluster choice - simpler K wins when scores are close",
+        "subtext": "Silhouette score by K; highlighted K is the one used for profiles below.",
+        "labels": [str(int(k)) for k in score_df["k"]],
+        "values": [float(s) for s in score_df["silhouette"]],
+        "barColors": [GOLD if int(k) == best_k else COLORS[1] for k in score_df["k"]],
+    },
+)
 print("Chart 1 done: K selection")
 
 
@@ -282,6 +295,18 @@ for (r, c), cell in table.get_celld().items():
 ax2.set_title("Readable cluster summary", fontsize=13, color=PRIMARY, pad=10)
 plt.tight_layout()
 save_export_or_interactive(fig2, "clustering", "02_cluster_summary_table.png", facecolor=BG)
+_table_lines = ["  |  ".join(table_df.columns)]
+for _, trow in table_df.iterrows():
+    _table_lines.append("  |  ".join(str(x) for x in trow))
+write_chart_spec(
+    "clustering",
+    "02_cluster_summary_table.png",
+    {
+        "chart": "message",
+        "title": "Readable cluster summary",
+        "message": "\n".join(_table_lines),
+    },
+)
 print("Chart 2 done: Summary table")
 
 
@@ -309,6 +334,23 @@ style_ax(ax3, grid_axis="y")
 ax3.legend(facecolor="#2A2A2E", edgecolor="#555", labelcolor=PRIMARY, fontsize=9)
 plt.tight_layout()
 save_export_or_interactive(fig3, "clustering", "03_hour_profiles.png", facecolor=BG)
+write_chart_spec(
+    "clustering",
+    "03_hour_profiles.png",
+    {
+        "chart": "line",
+        "title": "When each cluster happens",
+        "subtext": "% of each cluster’s posts by hour of day (within that cluster, sums to 100%)",
+        "categories": [f"{h:02d}:00" for h in range(24)],
+        "series": [
+            {
+                "name": str(srow["name"]),
+                "data": [float(x) for x in hour_profile.loc[int(srow["cluster"])].values],
+            }
+            for _, srow in summary_df.iterrows()
+        ],
+    },
+)
 print("Chart 3 done: Hour profiles")
 
 
@@ -338,6 +380,24 @@ style_ax(ax4, grid_axis="y")
 ax4.legend(facecolor="#2A2A2E", edgecolor="#555", labelcolor=PRIMARY, fontsize=9)
 plt.tight_layout()
 save_export_or_interactive(fig4, "clustering", "04_day_profiles.png", facecolor=BG)
+write_chart_spec(
+    "clustering",
+    "04_day_profiles.png",
+    {
+        "chart": "barGroup",
+        "title": "Which days each cluster prefers",
+        "subtext": "% of each cluster’s posts by weekday (within that cluster)",
+        "categories": DOW_SHORT,
+        "series": [
+            {
+                "name": str(srow["name"]),
+                "values": [float(x) for x in day_profile.loc[int(srow["cluster"])].values],
+                "color": str(srow["color"]),
+            }
+            for _, srow in summary_df.iterrows()
+        ],
+    },
+)
 print("Chart 4 done: Day profiles")
 
 
@@ -382,6 +442,39 @@ cbar5.set_label("% of cluster posts", color=PRIMARY, fontsize=10)
 fig5.suptitle("Hour x day shape of each cluster", color=PRIMARY, fontsize=13, y=0.98)
 fig5.subplots_adjust(left=0.05, right=0.91, top=0.78, bottom=0.12, wspace=0.05)
 save_export_or_interactive(fig5, "clustering", "05_hour_day_heatmaps.png", facecolor=BG)
+_hm_panels: list[dict] = []
+for _, _r in summary_df.iterrows():
+    _sub = heatmap_df[heatmap_df["cluster"] == int(_r["cluster"])]
+    _piv = (
+        _sub.pivot(index="day_of_week_n", columns="hour", values="count")
+        .reindex(index=range(7), columns=range(24))
+        .fillna(0)
+    )
+    _g = _piv.to_numpy(dtype=float)
+    if _g.sum() > 0:
+        _g = _g / _g.sum() * 100
+    _hm_panels.append(
+        {
+            "chart": "heatmap",
+            "title": f"{_r['name']} — % of this cluster’s posts",
+            "subtext": "Share by hour × weekday within the cluster",
+            "xAxisName": "Hour",
+            "yAxisName": "Day",
+            "xCategories": [f"{h:02d}" for h in range(24)],
+            "yCategories": DOW_SHORT,
+            "data": [[float(v) for v in row] for row in _g.tolist()],
+        }
+    )
+write_chart_spec(
+    "clustering",
+    "05_hour_day_heatmaps.png",
+    {
+        "chart": "composite",
+        "title": "Hour × day shape of each cluster",
+        "subtext": "Percent of each cluster’s own posts. Focus a cell to read the value; no pop-up tooltips.",
+        "panels": _hm_panels,
+    },
+)
 print("Chart 5 done: Hour x day heatmaps")
 
 
@@ -411,6 +504,25 @@ style_ax(ax6, grid_axis="y")
 ax6.legend(facecolor="#2A2A2E", edgecolor="#555", labelcolor=PRIMARY, fontsize=9)
 plt.tight_layout()
 save_export_or_interactive(fig6, "clustering", "06_month_profiles.png", facecolor=BG)
+write_chart_spec(
+    "clustering",
+    "06_month_profiles.png",
+    {
+        "chart": "barGroup",
+        "title": "Month patterns - used for explanation, not for clustering",
+        "subtext": "% of each cluster’s posts by calendar month (within that cluster)",
+        "categories": MONTH_SHORT,
+        "rotateX": 40,
+        "series": [
+            {
+                "name": str(srow["name"]),
+                "values": [float(x) for x in month_profile.loc[int(srow["cluster"])].values],
+                "color": str(srow["color"]),
+            }
+            for _, srow in summary_df.iterrows()
+        ],
+    },
+)
 print("Chart 6 done: Month profiles")
 
 print(f"\nClustering complete: {best_k} clearly named clusters from {len(cl_df):,} food posts")

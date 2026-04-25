@@ -1,0 +1,5 @@
+{
+  "chart": "message",
+  "title": "Readable cluster summary",
+  "message": "Cluster  |  % of posts  |  Peak hours  |  Strongest days  |  Weekend %  |  Strongest months\nLunch / early afternoon  |  38.2%  |  13:00, 14:00, 12:00  |  Wed, Fri  |  17.0%  |  Oct, Mar\nEvening  |  61.8%  |  21:00, 20:00, 19:00  |  Fri, Thu  |  10.4%  |  Sep, Mar"
+}

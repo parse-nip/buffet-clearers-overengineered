@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from chart_json import write_chart_spec
 from graph_output import save_and_close_if_exporting
 
 # ── Design tokens (Zerve dark theme) ──────────────────────────────────────────
@@ -63,6 +64,17 @@ chart_dow.tight_layout()
 save_and_close_if_exporting(
     chart_dow, "food_patterns", "01_food_alerts_by_day_of_week.png", facecolor=VIZ_BG
 )
+write_chart_spec(
+    "food_patterns",
+    "01_food_alerts_by_day_of_week.png",
+    {
+        "chart": "bar",
+        "title": "Food Alerts by Day of Week",
+        "subtitle": "Number of food-alert posts by weekday",
+        "categories": [str(x) for x in dow_counts.index.tolist()],
+        "values": [int(x) for x in dow_counts.values.tolist()],
+    },
+)
 print("Chart 1 done: Food alerts by day of week")
 
 
@@ -103,6 +115,20 @@ chart_weekly_hm.tight_layout()
 save_and_close_if_exporting(
     chart_weekly_hm, "food_patterns", "02_food_alerts_week_of_year_heatmap.png", facecolor=VIZ_BG
 )
+write_chart_spec(
+    "food_patterns",
+    "02_food_alerts_week_of_year_heatmap.png",
+    {
+        "chart": "heatmap",
+        "title": "Food Alert Activity by Week of Year",
+        "subtitle": "Rows: year · Columns: ISO week",
+        "xAxisName": "Week of year",
+        "yAxisName": "Year",
+        "xCategories": [int(c) for c in week_pivot.columns.tolist()],
+        "yCategories": [int(y) for y in week_pivot.index.tolist()],
+        "data": [[int(v) for v in row] for row in week_pivot.values],
+    },
+)
 print("Chart 2 done: Weekly heatmap")
 
 
@@ -142,6 +168,20 @@ chart_hour_hm.tight_layout()
 save_and_close_if_exporting(
     chart_hour_hm, "food_patterns", "03_hour_vs_day_of_week_heatmap.png", facecolor=VIZ_BG
 )
+write_chart_spec(
+    "food_patterns",
+    "03_hour_vs_day_of_week_heatmap.png",
+    {
+        "chart": "heatmap",
+        "title": "Food Alert Heatmap: Hour of Day vs Day of Week",
+        "subtitle": "Food-alert counts (hover a cell to see the number)",
+        "xAxisName": "Hour of day",
+        "yAxisName": "Day of week",
+        "xCategories": [f"{h:02d}:00" for h in range(24)],
+        "yCategories": [str(x) for x in hour_day_pivot.index.tolist()],
+        "data": [[int(v) for v in row] for row in hour_day_pivot.values],
+    },
+)
 print("Chart 3 done: Hour vs day-of-week heatmap")
 
 
@@ -158,6 +198,8 @@ ax4 = chart_monthly.add_subplot(111)
 ax4.plot(range(len(monthly)), monthly["count"], color=VIZ_COLORS[0],
          linewidth=2.2, marker="o", markersize=5, zorder=3, label="Monthly alerts")
 
+# Rolling 3-month average
+rolling_avg = None
 if len(monthly) >= 3:
     rolling_avg = monthly["count"].rolling(3, center=True).mean()
     ax4.plot(range(len(monthly)), rolling_avg, color=VIZ_GOLD,
@@ -179,6 +221,26 @@ chart_monthly.tight_layout()
 save_and_close_if_exporting(
     chart_monthly, "food_patterns", "04_monthly_food_alert_trend.png", facecolor=VIZ_BG
 )
+_line_spec: dict = {
+    "chart": "line",
+    "title": "Monthly Food Alert Trend",
+    "subtitle": "Per month (export) with optional 3-month rolling average",
+    "categories": [str(x) for x in monthly["label"].tolist()],
+    "series": [
+        {
+            "name": "Monthly alerts",
+            "data": [int(x) for x in monthly["count"].tolist()],
+        }
+    ],
+}
+if rolling_avg is not None:
+    _line_spec["series"].append(
+        {
+            "name": "3-month avg",
+            "data": [None if (isinstance(x, float) and np.isnan(x)) else float(x) for x in rolling_avg.tolist()],
+        }
+    )
+write_chart_spec("food_patterns", "04_monthly_food_alert_trend.png", _line_spec)
 print("Chart 4 done: Monthly trend")
 
 
@@ -209,6 +271,19 @@ ax5.tick_params(axis="y", labelsize=9)
 chart_senders.tight_layout()
 save_and_close_if_exporting(
     chart_senders, "food_patterns", "05_top_food_alert_senders.png", facecolor=VIZ_BG
+)
+write_chart_spec(
+    "food_patterns",
+    "05_top_food_alert_senders.png",
+    {
+        "chart": "barh",
+        "title": f"Top {top_n} Food Alert Senders",
+        "subtitle": "By count of food-alert posts",
+        "highlight": "first",
+        "reverseY": True,
+        "categories": [str(x) for x in sender_counts.index.tolist()],
+        "values": [int(x) for x in sender_counts.values.tolist()],
+    },
 )
 print("Chart 5 done: Top senders")
 

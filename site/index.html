@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Buffet Clearers — graph room</title>
+    <meta
+      name="description"
+      content="SMU buffet clearers chat, overanalyzed. Python, pandas, matplotlib, and a little ML — for science (and snacks)."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to gallery</a>
+
+    <div class="noise" aria-hidden="true"></div>
+
+    <header class="top">
+      <div class="top__inner">
+        <p class="kicker">Data from the group chat ∙ The struggle is real</p>
+        <h1 class="title">
+          <span class="title__line">Buffet</span>
+          <span class="title__line title__line--red">clearers</span>
+        </h1>
+        <p class="lede">
+          Telegram export in, unnecessarily pretty charts out. Organized for your inner data goblin.
+        </p>
+        <p class="meta" id="metaLine" hidden></p>
+      </div>
+    </header>
+
+    <nav class="rail" aria-label="Sections">
+      <a href="#food_patterns">Food patterns</a>
+      <a href="#weekly_alerts">Weekly alerts</a>
+      <a href="#prediction_model">Prediction model</a>
+      <a href="#clustering">Clustering</a>
+      <a href="#location_viz">Location</a>
+      <a href="#most_appreciated">Most appreciated</a>
+    </nav>
+
+    <main id="main" class="main">
+      <p id="loadError" class="load-error" role="status" hidden></p>
+      <div id="sections" class="sections"></div>
+    </main>
+
+    <dialog
+      class="tg-modal"
+      id="tgPromo"
+      closedby="none"
+      aria-labelledby="tgPromoTitle"
+      aria-describedby="tgPromoDesc"
+    >
+      <div class="tg-modal__panel">
+        <p class="tg-modal__kicker">Join the crew</p>
+        <h2 id="tgPromoTitle" class="tg-modal__title">Free food, faster</h2>
+        <p id="tgPromoDesc" class="tg-modal__body">
+          Join our new telegram group to get free food faster :)
+        </p>
+        <a
+          class="tg-modal__cta"
+          href="https://t.me/smusnipers"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          t.me/smusnipers
+        </a>
+      </div>
+    </dialog>
+
+    <footer class="foot">
+      <p>
+        Serve this folder with any static server
+        <span class="foot__code">(e.g. <code>python -m http.server</code> from the repo root)</span>
+        so images load.         Regenerate with <code>python run_graphs.py</code> — it writes PNGs, companion
+        <code>out/data/**/*.json</code> for ECharts, and mirrors
+        <code>site/out/</code>.
+      </p>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script src="js/echarts-app.js" defer></script>
+    <script src="js/gallery.js" defer></script>
+    <script src="js/telegram-popup.js" defer></script>
+  </body>
+</html>

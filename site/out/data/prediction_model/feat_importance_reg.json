@@ -1,0 +1,28 @@
+{
+  "chart": "barh",
+  "title": "Feature Importance — Model B: Hour Prediction (Regression)",
+  "subtitle": "Food posts only",
+  "highlight": "last",
+  "categories": [
+    "has_at_location",
+    "is_reply",
+    "is_weekend",
+    "has_photo",
+    "month",
+    "day_of_week_n",
+    "sender_enc",
+    "reaction_count",
+    "text_length"
+  ],
+  "values": [
+    0.016752711182632413,
+    0.01807099397192231,
+    0.020065790823727846,
+    0.023318867286481564,
+    0.15125619997486037,
+    0.1615268750751289,
+    0.17635881158579594,
+    0.18250480188249663,
+    0.25014494821695415
+  ]
+}

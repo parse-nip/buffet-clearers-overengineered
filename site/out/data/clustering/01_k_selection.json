@@ -1,0 +1,23 @@
+{
+  "chart": "barColored",
+  "title": "Cluster choice - simpler K wins when scores are close",
+  "subtext": "Silhouette score by K; highlighted K is the one used for profiles below.",
+  "labels": [
+    "2",
+    "3",
+    "4",
+    "5"
+  ],
+  "values": [
+    0.32689004292347346,
+    0.3382243413584076,
+    0.36709171156576087,
+    0.37613195025872187
+  ],
+  "barColors": [
+    "#FFD400",
+    "#A1C9F4",
+    "#A1C9F4",
+    "#A1C9F4"
+  ]
+}

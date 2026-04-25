@@ -1,0 +1,41 @@
+{
+  "chart": "barh",
+  "title": "Top 15 Food Alert Senders",
+  "subtitle": "By count of food-alert posts",
+  "highlight": "first",
+  "reverseY": true,
+  "categories": [
+    "Aaron Yeoh",
+    "SMU New Buffet Clearers",
+    "jr",
+    "Sarah Grant",
+    "Hien Dang",
+    "Stanley Ng",
+    "A",
+    "A4415B11137066066769 Kiran Yong Tao Foo (Lisan Al Gaib)",
+    "Sipei",
+    "tan min en (pls bump if urgent!)",
+    "basil",
+    "Rose",
+    "eileen",
+    "Eng Yeow",
+    "Chris Tan"
+  ],
+  "values": [
+    75,
+    58,
+    55,
+    47,
+    40,
+    39,
+    32,
+    30,
+    23,
+    23,
+    23,
+    21,
+    20,
+    20,
+    18
+  ]
+}

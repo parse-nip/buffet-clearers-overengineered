@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from chart_json import write_chart_spec
 from graph_output import save_and_close_if_exporting
 
 # ── Design tokens (Zerve dark theme) ──────────────────────────────────────────
@@ -210,6 +211,17 @@ ax.set_axisbelow(True)
 style_ax(ax, "Building Frequency in Food Posts", "Number of Posts", "Building")
 fig1.tight_layout()
 save_and_close_if_exporting(fig1, "location_viz", "01_building_frequency.png", facecolor=VIZ_BG)
+write_chart_spec(
+    "location_viz",
+    "01_building_frequency.png",
+    {
+        "chart": "barh",
+        "title": "Building Frequency in Food Posts",
+        "subtext": "Count of food posts where a building was detected in text",
+        "categories": [str(x) for x in bld_counts.index[::-1]],
+        "values": [int(x) for x in bld_counts.values[::-1]],
+    },
+)
 print("Chart 1 done: Building frequency")
 
 
@@ -237,6 +249,19 @@ ax.set_axisbelow(True)
 style_ax(ax, "Room Type Frequency in Food Posts", "Number of Posts", "Room Type")
 fig2.tight_layout()
 save_and_close_if_exporting(fig2, "location_viz", "02_room_type_frequency.png", facecolor=VIZ_BG)
+write_chart_spec(
+    "location_viz",
+    "02_room_type_frequency.png",
+    {
+        "chart": "barh",
+        "title": "Room Type Frequency in Food Posts",
+        "subtext": "Champion (most common) highlighted",
+        "highlight": "first",
+        "reverseY": True,
+        "categories": [str(x) for x in rt_counts.index.tolist()],
+        "values": [int(x) for x in rt_counts.values.tolist()],
+    },
+)
 print("Chart 2 done: Room type frequency")
 
 
@@ -269,6 +294,18 @@ ax.set_axisbelow(True)
 style_ax(ax, "Floor Distribution of Food Posts", "Floor", "Number of Posts")
 fig3.tight_layout()
 save_and_close_if_exporting(fig3, "location_viz", "03_floor_distribution.png", facecolor=VIZ_BG)
+write_chart_spec(
+    "location_viz",
+    "03_floor_distribution.png",
+    {
+        "chart": "barColored",
+        "title": "Floor Distribution of Food Posts",
+        "subtext": "Basement levels tinted separately from numeric floors",
+        "labels": [str(f) for f in floor_counts.index.tolist()],
+        "values": [int(x) for x in floor_counts.values.tolist()],
+        "barColors": [str(c) for c in floor_colors],
+    },
+)
 print("Chart 3 done: Floor distribution")
 
 
@@ -312,6 +349,20 @@ for sp in ax.spines.values():
 
 fig4.tight_layout()
 save_and_close_if_exporting(fig4, "location_viz", "04_building_by_day_of_week.png", facecolor=VIZ_BG)
+write_chart_spec(
+    "location_viz",
+    "04_building_by_day_of_week.png",
+    {
+        "chart": "heatmap",
+        "title": "Building × Day of Week",
+        "subtext": "Post counts (plasma). Focus a cell to read the value; no pop-up tooltips.",
+        "xAxisName": "Day",
+        "yAxisName": "Building",
+        "xCategories": [str(d) for d in DAY_SHORT],
+        "yCategories": [str(b) for b in BUILDING_ORDER],
+        "data": [[int(x) for x in row] for row in bld_dow.values.tolist()],
+    },
+)
 print("Chart 4 done: Building × day of week")
 
 
@@ -355,6 +406,20 @@ for sp in ax.spines.values():
 
 fig5.tight_layout()
 save_and_close_if_exporting(fig5, "location_viz", "05_building_by_hour.png", facecolor=VIZ_BG)
+write_chart_spec(
+    "location_viz",
+    "05_building_by_hour.png",
+    {
+        "chart": "heatmap",
+        "title": "Building × Hour of Day  (row-normalised)",
+        "subtext": "% of each building’s max hourly count (0–100 per row). Focus a cell to read the value.",
+        "xAxisName": "Hour",
+        "yAxisName": "Building",
+        "xCategories": [f"{h:02d}" for h in range(24)],
+        "yCategories": [str(b) for b in BUILDING_ORDER],
+        "data": [[float(x) for x in row] for row in bld_hr_norm.tolist()],
+    },
+)
 print("Chart 5 done: Building × hour")
 
 
@@ -394,6 +459,19 @@ legend = ax.legend(loc="upper left", framealpha=0.2, labelcolor=VIZ_TEXT,
 style_ax(ax, "Building Activity Over Time (top 8)", "Month", "Post Count")
 fig6.tight_layout()
 save_and_close_if_exporting(fig6, "location_viz", "06_building_over_time.png", facecolor=VIZ_BG)
+write_chart_spec(
+    "location_viz",
+    "06_building_over_time.png",
+    {
+        "chart": "stackedArea",
+        "title": "Building Activity Over Time (top 8)",
+        "subtext": "Stacked post counts by month in the export",
+        "categories": [str(x) for x in time_bld.index.tolist()],
+        "series": [
+            {"name": str(b), "data": [int(x) for x in time_bld[str(b)].values]} for b in top_buildings
+        ],
+    },
+)
 print("Chart 6 done: Building over time")
 
 
@@ -442,6 +520,20 @@ for sp in ax.spines.values():
 
 fig7.tight_layout()
 save_and_close_if_exporting(fig7, "location_viz", "07_building_floor_heatmap.png", facecolor=VIZ_BG)
+write_chart_spec(
+    "location_viz",
+    "07_building_floor_heatmap.png",
+    {
+        "chart": "heatmap",
+        "title": "Building × Floor Heatmap",
+        "subtext": "Post counts (plasma). Focus a cell to read the value; no pop-up tooltips.",
+        "xAxisName": "Floor",
+        "yAxisName": "Building",
+        "xCategories": [f"Floor {f}" for f in present_f],
+        "yCategories": [str(b) for b in BUILDING_ORDER],
+        "data": [[int(x) for x in row] for row in bld_floor.values.tolist()],
+    },
+)
 print("Chart 7 done: Building × floor")
 
 
@@ -488,6 +580,20 @@ for sp in ax.spines.values():
 
 fig8.tight_layout()
 save_and_close_if_exporting(fig8, "location_viz", "08_room_type_by_hour.png", facecolor=VIZ_BG)
+write_chart_spec(
+    "location_viz",
+    "08_room_type_by_hour.png",
+    {
+        "chart": "heatmap",
+        "title": "Room Type × Hour of Day  (row-normalised)",
+        "subtext": "% of each room type’s max hourly count (0–100 per row).",
+        "xAxisName": "Hour",
+        "yAxisName": "Room type",
+        "xCategories": [f"{h:02d}" for h in range(24)],
+        "yCategories": [str(x) for x in rt_order],
+        "data": [[float(x) for x in row] for row in rt_hr_norm.tolist()],
+    },
+)
 print("Chart 8 done: Room type × hour")
 
 

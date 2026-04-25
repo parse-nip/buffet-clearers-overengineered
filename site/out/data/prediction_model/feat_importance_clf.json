@@ -1,0 +1,34 @@
+{
+  "chart": "barh",
+  "title": "Feature Importance — Model A: Food Post Classifier",
+  "subtitle": "Mean decrease in impurity (gradient boosting)",
+  "highlight": "last",
+  "categories": [
+    "is_forwarded",
+    "is_weekend",
+    "is_edited",
+    "is_reply",
+    "day_of_week_n",
+    "month",
+    "has_at_location",
+    "reaction_count",
+    "hour",
+    "sender_enc",
+    "text_length",
+    "has_photo"
+  ],
+  "values": [
+    0.0009636929957667725,
+    0.0018275183004464565,
+    0.003048795472246313,
+    0.011810332874001163,
+    0.01871779559787646,
+    0.02567922469568255,
+    0.030360674082932894,
+    0.031324009314742315,
+    0.03451653286503872,
+    0.041929318827721794,
+    0.15430236612816176,
+    0.6455197388453828
+  ]
+}

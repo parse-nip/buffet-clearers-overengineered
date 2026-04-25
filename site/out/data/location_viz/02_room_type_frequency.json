@@ -1,0 +1,35 @@
+{
+  "chart": "barh",
+  "title": "Room Type Frequency in Food Posts",
+  "subtext": "Champion (most common) highlighted",
+  "highlight": "first",
+  "reverseY": true,
+  "categories": [
+    "SR",
+    "CR",
+    "Lounge",
+    "ALC",
+    "Function Room",
+    "Lab",
+    "GSR",
+    "Event Space",
+    "Hall",
+    "Auditorium",
+    "Meeting Pod",
+    "Training Room"
+  ],
+  "values": [
+    249,
+    104,
+    66,
+    44,
+    44,
+    32,
+    22,
+    16,
+    16,
+    12,
+    7,
+    2
+  ]
+}

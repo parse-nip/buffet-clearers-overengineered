@@ -1,0 +1,76 @@
+{
+  "chart": "composite",
+  "title": "Most appreciated in SMU New Buffet Clearers",
+  "subtitle": "Aaron Yeoh — 312 reactions on one post · 2024-01-10",
+  "quote": "Hi SMU friends, I intend to setup a system using ORACLE - SMU SMART DIning  Predomainately serving busy students at S…",
+  "panels": [
+    {
+      "chart": "barh",
+      "title": "Top single-post reaction peaks",
+      "highlight": "first",
+      "reverseY": true,
+      "categories": [
+        "Aaron Yeoh (#5870)",
+        "Aaron Yeoh (#5691)",
+        "Aaron Yeoh (#5655)",
+        "Aaron Yeoh (#5516)",
+        "A (#6303)",
+        "SMU New Buffet Clearers (#4741)",
+        "Aaron Yeoh (#5838)",
+        "Aaron Yeoh (#5332)",
+        "Aaron Yeoh (#5615)",
+        "Jules (#7437)",
+        "Aaron Yeoh (#5919)",
+        "Aaron Yeoh (#5731)"
+      ],
+      "values": [
+        312,
+        290,
+        260,
+        184,
+        178,
+        159,
+        155,
+        153,
+        130,
+        129,
+        128,
+        126
+      ]
+    },
+    {
+      "chart": "barh",
+      "title": "Reaction mix on champion post",
+      "highlight": "first",
+      "reverseY": true,
+      "categories": [
+        "❤",
+        "👍",
+        "🔥",
+        "🥰"
+      ],
+      "values": [
+        303,
+        5,
+        2,
+        2
+      ]
+    },
+    {
+      "chart": "stepLine",
+      "title": "Followers up (cumulative joins + invites)",
+      "dates": [
+        "2023-08-16T17:23:34",
+        "2023-09-08T17:15:58",
+        "2023-10-12T15:33:22",
+        "2026-04-21T13:07:03"
+      ],
+      "values": [
+        0,
+        1,
+        2,
+        2
+      ]
+    }
+  ]
+}

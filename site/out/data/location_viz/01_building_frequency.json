@@ -1,0 +1,31 @@
+{
+  "chart": "barh",
+  "title": "Building Frequency in Food Posts",
+  "subtext": "Count of food posts where a building was detected in text",
+  "categories": [
+    "OSL",
+    "SCIS2",
+    "LKS Library",
+    "SCIS",
+    "SOSS/CIS",
+    "SOA",
+    "Admin",
+    "SOE",
+    "Connexion",
+    "SOB/LKCSB",
+    "SOL"
+  ],
+  "values": [
+    3,
+    29,
+    78,
+    86,
+    99,
+    107,
+    167,
+    185,
+    193,
+    223,
+    234
+  ]
+}

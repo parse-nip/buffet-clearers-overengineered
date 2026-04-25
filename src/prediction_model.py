@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
+from chart_json import write_chart_spec
 from graph_output import save_export_or_interactive
 from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
 from sklearn.preprocessing import LabelEncoder
@@ -221,15 +222,51 @@ _plot_feature_importance(
     'feat_importance_clf.png',
     xlabel='Feature Importance (mean decrease in impurity)',
 )
+write_chart_spec(
+    "prediction_model",
+    "feat_importance_clf.png",
+    {
+        "chart": "barh",
+        "title": "Feature Importance — Model A: Food Post Classifier",
+        "subtitle": "Mean decrease in impurity (gradient boosting)",
+        "highlight": "last",
+        "categories": [str(x) for x in fi_a.index.tolist()],
+        "values": [float(x) for x in fi_a.values.tolist()],
+    },
+)
 _plot_feature_importance(
     fi_b, COLORS[1],
     'Feature Importance — Model B: Hour Prediction (Regression)',
     'feat_importance_reg.png',
 )
+write_chart_spec(
+    "prediction_model",
+    "feat_importance_reg.png",
+    {
+        "chart": "barh",
+        "title": "Feature Importance — Model B: Hour Prediction (Regression)",
+        "subtitle": "Food posts only",
+        "highlight": "last",
+        "categories": [str(x) for x in fi_b.index.tolist()],
+        "values": [float(x) for x in fi_b.values.tolist()],
+    },
+)
 _plot_feature_importance(
     fi_c, COLORS[2],
     'Feature Importance — Model C: Location Predictor',
     'feat_importance_loc.png',
+)
+write_chart_spec(
+    "prediction_model",
+    "feat_importance_loc.png",
+    {
+        "chart": "barh",
+        "title": "Feature Importance — Model C: Location Predictor",
+        "subtitle": "Food posts with parsed location",
+        "highlight": "last",
+        "categories": [str(x) for x in fi_c.index.tolist()],
+        "values": [float(x) for x in fi_c.values.tolist()],
+    },
 )
 
 # --- Fig 4: Confusion Matrix – Model A ----------------------------------------
@@ -252,6 +289,17 @@ for spine in ax4.spines.values():
     spine.set_edgecolor('#444')
 plt.tight_layout()
 save_export_or_interactive(fig4, "prediction_model", "confusion_matrix_a.png", facecolor=BG)
+write_chart_spec(
+    "prediction_model",
+    "confusion_matrix_a.png",
+    {
+        "chart": "confusion",
+        "title": f"Confusion Matrix — Model A  (test acc: {acc_a:.1%}, 5-fold CV: {cv_a:.1%})",
+        "rowLabels": ["Not Food Post", "Food Post"],
+        "colLabels": ["Not Food Post", "Food Post"],
+        "matrix": [[int(_cm[i, j]) for j in range(2)] for i in range(2)],
+    },
+)
 
 # --- Fig 5: Predicted vs Actual Hour – Model B --------------------------------
 fig5, ax5 = plt.subplots(figsize=(8, 6))
@@ -274,6 +322,18 @@ ax5.yaxis.grid(True, linestyle='--', alpha=0.25)
 ax5.set_axisbelow(True)
 plt.tight_layout()
 save_export_or_interactive(fig5, "prediction_model", "predicted_vs_actual_hour.png", facecolor=BG)
+write_chart_spec(
+    "prediction_model",
+    "predicted_vs_actual_hour.png",
+    {
+        "chart": "scatter",
+        "title": f"Predicted vs Actual Hour of Food Post  (RMSE: {rmse_b:.2f}h, MAE: {mae_b:.2f}h, R²: {r2_b:.3f})",
+        "x": [float(x) for x in y_b_test.tolist()],
+        "y": [float(x) for x in y_b_pred.tolist()],
+        "xName": "Actual hour",
+        "yName": "Predicted hour",
+    },
+)
 
 # --- Fig 6: Average prediction probability by hour (food post) ---------------
 _test_df = X_a_test.copy()
@@ -311,6 +371,17 @@ ax6.set_axisbelow(True)
 ax6.set_ylim(0, 1)
 plt.tight_layout()
 save_export_or_interactive(fig6, "prediction_model", "prob_by_hour.png", facecolor=BG)
+write_chart_spec(
+    "prediction_model",
+    "prob_by_hour.png",
+    {
+        "chart": "probBar",
+        "title": "Model A — Avg. predicted P(food post) on held-out set, by hour",
+        "categories": [f"{h:02d}:00" for h in range(24)],
+        "values": [None if (isinstance(p, float) and np.isnan(p)) else float(p) for p in _probs.tolist()],
+        "threshold": 0.5,
+    },
+)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 6.  FINAL METRICS SUMMARY

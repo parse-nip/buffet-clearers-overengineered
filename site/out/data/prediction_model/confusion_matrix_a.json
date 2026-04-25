@@ -1,0 +1,22 @@
+{
+  "chart": "confusion",
+  "title": "Confusion Matrix — Model A  (test acc: 87.0%, 5-fold CV: 82.0%)",
+  "rowLabels": [
+    "Not Food Post",
+    "Food Post"
+  ],
+  "colLabels": [
+    "Not Food Post",
+    "Food Post"
+  ],
+  "matrix": [
+    [
+      484,
+      39
+    ],
+    [
+      119,
+      569
+    ]
+  ]
+}

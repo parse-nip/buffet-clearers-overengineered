@@ -1,0 +1,33 @@
+{
+  "generated_at_utc": "2026-04-25T13:27:35.837609+00:00",
+  "image_base": "out",
+  "graphs": [
+    "clustering/01_k_selection.png",
+    "clustering/02_cluster_summary_table.png",
+    "clustering/03_hour_profiles.png",
+    "clustering/04_day_profiles.png",
+    "clustering/05_hour_day_heatmaps.png",
+    "clustering/06_month_profiles.png",
+    "food_patterns/01_food_alerts_by_day_of_week.png",
+    "food_patterns/02_food_alerts_week_of_year_heatmap.png",
+    "food_patterns/03_hour_vs_day_of_week_heatmap.png",
+    "food_patterns/04_monthly_food_alert_trend.png",
+    "food_patterns/05_top_food_alert_senders.png",
+    "location_viz/01_building_frequency.png",
+    "location_viz/02_room_type_frequency.png",
+    "location_viz/03_floor_distribution.png",
+    "location_viz/04_building_by_day_of_week.png",
+    "location_viz/05_building_by_hour.png",
+    "location_viz/06_building_over_time.png",
+    "location_viz/07_building_floor_heatmap.png",
+    "location_viz/08_room_type_by_hour.png",
+    "most_appreciated/most_appreciated_person_and_followers.png",
+    "prediction_model/confusion_matrix_a.png",
+    "prediction_model/feat_importance_clf.png",
+    "prediction_model/feat_importance_loc.png",
+    "prediction_model/feat_importance_reg.png",
+    "prediction_model/predicted_vs_actual_hour.png",
+    "prediction_model/prob_by_hour.png",
+    "weekly_alerts/food_alerts_by_week_year_colored_by_month.png"
+  ]
+}

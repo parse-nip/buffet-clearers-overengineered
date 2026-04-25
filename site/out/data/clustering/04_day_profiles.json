@@ -1,0 +1,42 @@
+{
+  "chart": "barGroup",
+  "title": "Which days each cluster prefers",
+  "subtext": "% of each cluster’s posts by weekday (within that cluster)",
+  "categories": [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun"
+  ],
+  "series": [
+    {
+      "name": "Lunch / early afternoon",
+      "values": [
+        11.187214611872145,
+        18.11263318112633,
+        19.17808219178082,
+        16.13394216133942,
+        18.340943683409435,
+        13.698630136986301,
+        3.34855403348554
+      ],
+      "color": "#8DE5A1"
+    },
+    {
+      "name": "Evening",
+      "values": [
+        10.719322990126939,
+        10.81335213916314,
+        14.62153267512929,
+        21.297602256699577,
+        32.15796897038082,
+        9.543958627174424,
+        0.846262341325811
+      ],
+      "color": "#A1C9F4"
+    }
+  ]
+}

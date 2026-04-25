@@ -1,0 +1,38 @@
+{
+  "chart": "barColored",
+  "title": "Floor Distribution of Food Posts",
+  "subtext": "Basement levels tinted separately from numeric floors",
+  "labels": [
+    "B2",
+    "B1",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+  ],
+  "values": [
+    16,
+    134,
+    111,
+    271,
+    362,
+    174,
+    164,
+    62,
+    8
+  ],
+  "barColors": [
+    "#FF9F9B",
+    "#FF9F9B",
+    "#FFB482",
+    "#8DE5A1",
+    "#FF9F9B",
+    "#D0BBFF",
+    "#1F77B4",
+    "#9467BD",
+    "#8C564B"
+  ]
+}

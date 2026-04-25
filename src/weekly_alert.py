@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
 
+from chart_json import write_chart_spec
 from graph_output import save_graph
 
 # ── Zerve design constants ──────────────────────────────────────────────
@@ -109,6 +110,21 @@ ax_wm.legend(
 )
 
 plt.tight_layout()
+write_chart_spec(
+    "weekly_alerts",
+    "food_alerts_by_week_year_colored_by_month.png",
+    {
+        "chart": "barColored",
+        "title": "Food Alert Activity by Week of Year",
+        "subtitle": "Bars colored by dominant month in that week",
+        "labels": [str(x) for x in week_counts["label"].tolist()],
+        "values": [int(x) for x in week_counts["count"].tolist()],
+        "barColors": [MONTH_COLORS[int(m) - 1] for m in week_counts["month"].tolist()],
+        "monthLegend": MONTH_NAMES,
+        "monthColors": MONTH_COLORS,
+    },
+)
+
 if save_graph(
     fig_week_month,
     "weekly_alerts",

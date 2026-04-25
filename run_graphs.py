@@ -32,8 +32,28 @@ OUT_DIR = ROOT / "out"
 # (e.g. Next.js), which hides ./out from Git and breaks README previews on GitHub.
 README_DOCS = ROOT / "docs" / "readme"
 
-# Organized subfolders (food_patterns, weekly_alerts, prediction_model)
+# Organized subfolders under out/ (and mirrored to site/out/)
 os.environ["BUFFET_GRAPH_ROOT"] = str(OUT_DIR)
+
+_OUT_SUBS = (
+    "food_patterns",
+    "weekly_alerts",
+    "prediction_model",
+    "clustering",
+    "location_viz",
+    "most_appreciated",
+)
+
+_STEPS = (
+    "load_inspect.py",
+    "feature_extract.py",
+    "food_pattern.py",
+    "weekly_alert.py",
+    "prediction_model.py",
+    "clustering.py",
+    "location_viz.py",
+    "most_appreciated.py",
+)
 
 
 def main() -> int:
@@ -46,20 +66,11 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     if README_DOCS.exists():
         shutil.rmtree(README_DOCS)
-    for sub in ("food_patterns", "weekly_alerts", "prediction_model", "clustering", "location_viz"):
+    for sub in _OUT_SUBS:
         (OUT_DIR / sub).mkdir(parents=True, exist_ok=True)
 
     ns: dict = {"__name__": "__main__"}
-    steps = (
-        "load_inspect.py",
-        "feature_extract.py",
-        "food_pattern.py",
-        "weekly_alert.py",
-        "prediction_model.py",
-        "clustering.py",
-        "location_viz.py",
-    )
-    for script_name in steps:
+    for script_name in _STEPS:
         path = SRC / script_name
         if not path.is_file():
             print(f"Missing {path}", file=sys.stderr)
@@ -81,14 +92,36 @@ def main() -> int:
         json.dumps(manifest, indent=2),
         encoding="utf-8",
     )
+    # Static gallery (see site/): full mirror of out/ (PNGs, data/*.json) + manifest
+    site_dir = ROOT / "site"
+    site_out = site_dir / "out"
+    site_dir.mkdir(parents=True, exist_ok=True)
+    if site_out.exists():
+        shutil.rmtree(site_out)
+    shutil.copytree(OUT_DIR, site_out)
+    site_manifest = {
+        "generated_at_utc": manifest["generated_at_utc"],
+        "image_base": "out",
+        "graphs": manifest["graphs"],
+    }
+    (site_dir / "manifest.json").write_text(
+        json.dumps(site_manifest, indent=2),
+        encoding="utf-8",
+    )
+
     for png in OUT_DIR.rglob("*.png"):
         rel = png.relative_to(OUT_DIR)
         dest = README_DOCS / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(png, dest)
+        try:
+            shutil.copy2(png, dest)
+        except OSError as e:
+            print(f"Note: could not copy {png} to {dest}: {e}", file=sys.stderr)
+
     print(f"Wrote {len(graphs)} graph(s) under {OUT_DIR}")
     print(f"Manifest: {OUT_DIR / 'manifest.json'}")
     print(f"README gallery mirror: {README_DOCS}")
+    print(f"Static site mirror: {site_dir} (open site/index.html via a local server)")
     return 0
 
 

@@ -1,0 +1,23 @@
+{
+  "chart": "bar",
+  "title": "Food Alerts by Day of Week",
+  "subtitle": "Number of food-alert posts by weekday",
+  "categories": [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ],
+  "values": [
+    375,
+    468,
+    563,
+    665,
+    925,
+    383,
+    62
+  ]
+}

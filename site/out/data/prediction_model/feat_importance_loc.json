@@ -1,0 +1,28 @@
+{
+  "chart": "barh",
+  "title": "Feature Importance — Model C: Location Predictor",
+  "subtitle": "Food posts with parsed location",
+  "highlight": "last",
+  "categories": [
+    "is_reply",
+    "is_weekend",
+    "has_photo",
+    "sender_enc",
+    "day_of_week_n",
+    "reaction_count",
+    "hour",
+    "month",
+    "text_length"
+  ],
+  "values": [
+    0.0036456480812294906,
+    0.010851452095421012,
+    0.015094734095036567,
+    0.07278117162051716,
+    0.10342519970658735,
+    0.10596671723287403,
+    0.16787722498744073,
+    0.17492497425774373,
+    0.34543287792315
+  ]
+}
