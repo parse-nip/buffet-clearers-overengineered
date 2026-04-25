@@ -403,16 +403,31 @@ body {
   max-width: 52em;
 }
 
+.foot a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 2px solid var(--accent);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.foot a:hover {
+  color: var(--accent);
+}
+
+.foot a:focus {
+  outline: none;
+}
+
+.foot a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .foot code {
   font-size: 0.95em;
   background: rgba(0, 0, 0, 0.06);
   padding: 0.1em 0.35em;
   border-radius: 2px;
-}
-
-.foot__code {
-  display: block;
-  margin-top: 0.35rem;
 }
 
 /* ——— Telegram promo modal ——— */
@@ -424,6 +439,8 @@ body {
   width: min(26rem, 100%);
   background: transparent;
   color: inherit;
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .tg-modal::backdrop {
@@ -434,11 +451,16 @@ body {
 
 .tg-modal__panel {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   background: #fffcf7;
   border: 1px solid color-mix(in srgb, var(--line) 22%, white);
   box-shadow: 6px 10px 0 var(--shadow);
   padding: 1.5rem 1.35rem 1.35rem;
   transform: rotate(-0.35deg);
+  box-sizing: border-box;
 }
 
 .tg-modal__kicker {
@@ -467,12 +489,15 @@ body {
   color: var(--ink-muted);
   margin: 0 0 1.25rem;
   max-width: 36ch;
+  text-wrap: balance;
 }
 
 .tg-modal__cta {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
+  flex-shrink: 0;
   font-family: var(--mono);
   font-size: 0.8rem;
   letter-spacing: 0.04em;
