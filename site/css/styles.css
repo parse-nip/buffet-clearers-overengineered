@@ -526,6 +526,17 @@ body {
   outline-offset: 3px;
 }
 
+.tg-modal__note {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  margin: 0.9rem 0 0;
+  max-width: 28ch;
+  opacity: 0.92;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tg-modal__cta,
   .tg-modal__cta:hover {
