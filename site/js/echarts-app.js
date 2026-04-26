@@ -179,6 +179,311 @@
     };
   }
 
+  /** magic_model today strip — matches matplotlib `_draw_heatmap_row` + metric footer */
+  function lerpByte(a, b, t) {
+    return Math.round(a + (b - a) * t);
+  }
+
+  function foodStripColor(s) {
+    const R0 = 240;
+    const G0 = 68;
+    const B0 = 56;
+    const R1 = 255;
+    const G1 = 212;
+    const B1 = 0;
+    const R2 = 23;
+    const G2 = 178;
+    const B2 = 106;
+    const t = Math.max(0, Math.min(1, Number(s) || 0));
+    if (t <= 0.5) {
+      const k = t * 2;
+      return "rgb(" + lerpByte(R0, R1, k) + "," + lerpByte(G0, G1, k) + "," + lerpByte(B0, B1, k) + ")";
+    }
+    const k = (t - 0.5) * 2;
+    return "rgb(" + lerpByte(R1, R2, k) + "," + lerpByte(G1, G2, k) + "," + lerpByte(B1, B2, k) + ")";
+  }
+
+  function buildMagicStripOption(spec) {
+    const BG = "#1D1D20";
+    const PRIMARY = "#fbfbff";
+    const SEC = "#909094";
+    const GOLD = "#ffd400";
+    const DIM = "#2b2b2f";
+    const EDGE = "#1D1D20";
+    const ch = spec.currentHour != null ? Number(spec.currentHour) : 0;
+    const scores = spec.scores || [];
+    const bh = spec.bestNextHour != null && spec.bestNextHour !== "" ? Number(spec.bestNextHour) : null;
+    const bestCol = spec.bestNextLabelColor || (bh != null && scores[bh] >= 0.65 ? "#17b26a" : GOLD);
+
+    const xCats = [];
+    for (let h = 0; h < 24; h++) {
+      xCats.push(("0" + h).slice(-2) + ":00");
+    }
+    const mono = "IBM Plex Mono, ui-monospace, monospace";
+
+    /* Gapless bars (uniform height) — cartesian heatmap was rendering blank in ECharts 5 without visualMap. */
+    const barData = [];
+    for (let h = 0; h < 24; h++) {
+      const s = scores[h] != null ? Number(scores[h]) : 0;
+      let fill;
+      let borderColor = EDGE;
+      let borderWidth = 0.6;
+      if (h < ch) {
+        fill = DIM;
+      } else {
+        fill = foodStripColor(s);
+        if (h === ch) {
+          borderColor = GOLD;
+          borderWidth = 2.8;
+        }
+      }
+      const hh = ("0" + h).slice(-2);
+      let labStr;
+      let labColor;
+      if (h < ch) {
+        labStr = hh;
+        labColor = "#555";
+      } else {
+        labStr = hh + ":00\n" + Math.round(s * 100) + "%";
+        labColor = s > 0.6 ? "#0f0f0f" : "#fbfbff";
+      }
+      barData.push({
+        value: 1,
+        itemStyle: {
+          color: fill,
+          borderColor: borderColor,
+          borderWidth: borderWidth,
+        },
+        label: {
+          show: true,
+          position: "inside",
+          formatter: labStr,
+          color: labColor,
+          fontSize: 7,
+          fontWeight: 700,
+          fontFamily: mono,
+          lineHeight: 10,
+        },
+      });
+    }
+
+    const badge = spec.semesterBadge || {};
+    const badgeText = badge.text || "";
+    const badgeBorder = badge.borderColor || GOLD;
+    const metrics = spec.metrics || [];
+
+    const metricGraphics = metrics.map(function (m, i) {
+      const pctW = Math.round((m.weight != null ? Number(m.weight) : 0) * 100);
+      return {
+        type: "group",
+        left: 2 + i * 19.6 + "%",
+        top: "78%",
+        children: [
+          {
+            type: "text",
+            x: 0,
+            y: 0,
+            style: {
+              text: String(m.name || ""),
+              fill: SEC,
+              font: "10px " + mono,
+              textAlign: "left",
+            },
+          },
+          {
+            type: "text",
+            x: 0,
+            y: 18,
+            style: {
+              text: "×" + pctW + "%",
+              fill: m.accentColor || SEC,
+              font: "bold 11px " + mono,
+              textAlign: "left",
+            },
+          },
+          {
+            type: "text",
+            x: 0,
+            y: 38,
+            style: {
+              text: String(m.scoreText || "") + "  " + String(m.tag || ""),
+              fill: PRIMARY,
+              font: "10px " + mono,
+              opacity: 0.72,
+              textAlign: "left",
+            },
+          },
+        ],
+      };
+    });
+
+    const markData = [
+      {
+        coord: [xCats[ch], 1],
+        symbol: "triangle",
+        symbolSize: 10,
+        symbolRotate: 180,
+        symbolOffset: [0, -16],
+        itemStyle: { color: GOLD },
+        label: {
+          show: true,
+          formatter: "NOW",
+          color: GOLD,
+          fontWeight: "bold",
+          fontSize: 10,
+          position: "top",
+          distance: 2,
+        },
+      },
+    ];
+    if (bh != null && !isNaN(bh) && bh >= 0 && bh < 24) {
+      const bs = scores[bh] != null ? Number(scores[bh]) : 0;
+      markData.push({
+        coord: [xCats[bh], 1],
+        symbol: "circle",
+        symbolSize: 1,
+        itemStyle: { opacity: 0 },
+        label: {
+          show: true,
+          formatter:
+            "best next: " +
+            ("0" + bh).slice(-2) +
+            ":00 (" +
+            Math.round(bs * 100) +
+            "%)",
+          color: bestCol,
+          fontWeight: "bold",
+          fontSize: 10,
+          position: "bottom",
+          distance: 4,
+        },
+      });
+    }
+
+    return {
+      backgroundColor: BG,
+      animationDuration: 220,
+      tooltip: {
+        trigger: "item",
+        backgroundColor: "rgba(37,37,40,0.96)",
+        borderColor: "#444",
+        textStyle: { color: PRIMARY, fontSize: 12 },
+        formatter: function (p) {
+          const h = p.dataIndex;
+          const v = scores[h] != null ? Number(scores[h]) : 0;
+          const lab = xCats[h];
+          const role = h < ch ? "past" : h === ch ? "now" : "ahead";
+          return lab + " · " + Math.round(v * 100) + "%<br/>" + role;
+        },
+      },
+      title: {
+        text: spec.title || "",
+        subtext: spec.subtitle || "",
+        left: 8,
+        top: 4,
+        textStyle: { color: PRIMARY, fontSize: 15, fontWeight: 700, fontFamily: "Bricolage Grotesque, system-ui, sans-serif" },
+        subtextStyle: { color: SEC, fontSize: 11, fontFamily: "Newsreader, Georgia, serif" },
+      },
+      graphic: metricGraphics.concat([
+        {
+          type: "group",
+          right: 10,
+          top: 6,
+          children: [
+            {
+              type: "rect",
+              shape: { width: 132, height: 26, r: 4 },
+              style: { fill: "#252528", stroke: badgeBorder, lineWidth: 1.5 },
+            },
+            {
+              type: "text",
+              x: 66,
+              y: 13,
+              style: {
+                text: badgeText,
+                fill: badgeBorder,
+                font: "bold 11px Bricolage Grotesque, system-ui, sans-serif",
+                textAlign: "center",
+                textVerticalAlign: "middle",
+              },
+            },
+          ],
+        },
+        {
+          type: "text",
+          right: 10,
+          bottom: 4,
+          style: {
+            text: "magic_model · buffet clearers",
+            fill: "#444",
+            font: "9px " + mono,
+            textAlign: "right",
+          },
+        },
+      ]),
+      grid: { left: 36, right: 12, top: 72, bottom: 118, containLabel: false },
+      xAxis: {
+        type: "category",
+        data: xCats,
+        position: "bottom",
+        axisLine: { lineStyle: { color: "#333" } },
+        axisTick: { show: false },
+        axisLabel: { show: false },
+      },
+      yAxis: {
+        type: "value",
+        min: 0,
+        max: 1,
+        show: false,
+        splitLine: { show: false },
+      },
+      series: [
+        {
+          name: "likelihood",
+          type: "bar",
+          data: barData,
+          barCategoryGap: "0%",
+          barGap: "0%",
+          barMaxWidth: 9999,
+          emphasis: {
+            focus: "self",
+            itemStyle: {
+              shadowBlur: 14,
+              shadowColor: "rgba(255, 212, 0, 0.35)",
+            },
+          },
+          markPoint: {
+            data: markData,
+          },
+        },
+      ],
+      media: [
+        {
+          query: { maxWidth: 520 },
+          option: {
+            grid: { left: 28, right: 8, top: 68, bottom: 132 },
+            title: { textStyle: { fontSize: 13 } },
+          },
+        },
+      ],
+    };
+  }
+
+  function mountMagicStrip(el, spec) {
+    el.style.width = "100%";
+    el.style.minWidth = "0";
+    el.style.minHeight = "320px";
+    el.style.boxSizing = "border-box";
+    const opt = buildMagicStripOption(spec);
+    if (!opt) return function () {};
+    const inst = echarts.init(el, null, { renderer: "canvas" });
+    inst.setOption(opt, true);
+    requestAnimationFrame(function () {
+      inst.resize();
+    });
+    return bindChart(el, inst);
+  }
+
   const subTextOf = (spec) =>
     spec.subtext != null && spec.subtext !== "" ? spec.subtext : spec.subtitle || "";
 
@@ -463,6 +768,9 @@
     }
     if (spec.chart === "heatmap") {
       return mountHeatmap(el, spec);
+    }
+    if (spec.chart === "magicStrip") {
+      return mountMagicStrip(el, spec);
     }
     const opt = buildOption(spec);
     if (!opt) return function () {};

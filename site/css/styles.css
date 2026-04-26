@@ -252,6 +252,23 @@ body {
   }
 }
 
+/* Today's odds hero: spans both columns on wide layouts */
+.section__grid .card--strip {
+  grid-column: 1 / -1;
+}
+
+.card--strip {
+  max-width: 100%;
+}
+
+.card--strip .card__echart {
+  min-height: 20rem;
+}
+
+.card--strip .card__figure {
+  max-width: none;
+}
+
 /* ——— Cards (tear sheets) ——— */
 
 .card {

@@ -1,0 +1,31 @@
+{
+  "chart": "composite",
+  "title": "What drives today's score",
+  "subtitle": "Weighted contributions + snapshot for hours still ahead",
+  "panels": [
+    {
+      "chart": "barh",
+      "title": "Metric contributions (weight × context)",
+      "reverseY": true,
+      "categories": [
+        "Hour of day — varies per hour",
+        "Day of week — Sunday",
+        "Semester — Exams S2 25/26",
+        "Month — Apr",
+        "Week of year — Week 17"
+      ],
+      "values": [
+        0.20383,
+        0.01916,
+        0.0675,
+        0.03982,
+        0.0134
+      ]
+    },
+    {
+      "chart": "message",
+      "title": "Rest of today",
+      "message": "Avg likelihood (rest of today): 31%\nPeak remaining: 31%\nExams S2 25/26"
+    }
+  ]
+}

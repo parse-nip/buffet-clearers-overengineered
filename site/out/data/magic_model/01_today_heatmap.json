@@ -1,0 +1,75 @@
+{
+  "chart": "magicStrip",
+  "title": "Will there be food?",
+  "subtitle": "Sunday 26 Apr 2026",
+  "semesterBadge": {
+    "text": "Exams S2 25/26",
+    "borderColor": "#ffd400"
+  },
+  "scores": [
+    0.26982142940529313,
+    0.26268031869043046,
+    0.27517726244144014,
+    0.26268031869043046,
+    0.26089504101171485,
+    0.2591097633329992,
+    0.26089504101171485,
+    0.26089504101171485,
+    0.26982142940529313,
+    0.29303003922859683,
+    0.4108583660238307,
+    0.5733186347869562,
+    0.6750794624737492,
+    0.9714355571405493,
+    0.7304230705139347,
+    0.580459745501819,
+    0.6982880722970527,
+    0.7393494589075131,
+    0.7089997383693468,
+    0.776840290160542,
+    0.8839569508834819,
+    1.0,
+    0.4911958615660357,
+    0.31445337137318474
+  ],
+  "currentHour": 23,
+  "bestNextHour": null,
+  "bestNextLabelColor": "#ffd400",
+  "metrics": [
+    {
+      "name": "hour of day",
+      "weight": 0.4,
+      "scoreText": "--",
+      "tag": "varies per cell",
+      "accentColor": "#17b26a"
+    },
+    {
+      "name": "day of week",
+      "weight": 0.3,
+      "scoreText": "6%",
+      "tag": "Sun",
+      "accentColor": "#A1C9F4"
+    },
+    {
+      "name": "semester",
+      "weight": 0.15,
+      "scoreText": "45%",
+      "tag": "Exams S2 25/26",
+      "accentColor": "#ffd400"
+    },
+    {
+      "name": "month",
+      "weight": 0.08,
+      "scoreText": "50%",
+      "tag": "Apr",
+      "accentColor": "#FFB482"
+    },
+    {
+      "name": "week of year",
+      "weight": 0.07,
+      "scoreText": "19%",
+      "tag": "wk 17",
+      "accentColor": "#D0BBFF"
+    }
+  ]
+}

@@ -42,6 +42,7 @@ _OUT_SUBS = (
     "clustering",
     "location_viz",
     "most_appreciated",
+    "magic_model",
 )
 
 _STEPS = (
@@ -78,6 +79,11 @@ def main() -> int:
         ns["__file__"] = str(path)
         code = path.read_text(encoding="utf-8")
         exec(compile(code, str(path), "exec"), ns)
+
+    magic_path = ROOT / "magic_model.py"
+    if magic_path.is_file():
+        ns["__file__"] = str(magic_path)
+        exec(compile(magic_path.read_text(encoding="utf-8"), str(magic_path), "exec"), ns)
 
     graphs = sorted(
         str(p.relative_to(OUT_DIR)).replace("\\", "/")

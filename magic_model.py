@@ -20,6 +20,7 @@ Run:  python magic_model.py
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from datetime import datetime, date, timedelta
@@ -112,8 +113,16 @@ DOW_SHORT   = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 MONTH_NAMES = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-# ── Data ───────────────────────────────────────────────────────────────────────
+# ── Paths ───────────────────────────────────────────────────────────────────────
 ROOT = Path(__file__).resolve().parent
+_export_root = os.environ.get("BUFFET_GRAPH_ROOT", "").strip()
+if _export_root:
+    DOCS_DIR = Path(_export_root) / "magic_model"
+else:
+    DOCS_DIR = ROOT / "docs" / "readme" / "magic_model"
+DOCS_DIR.mkdir(parents=True, exist_ok=True)
+
+# ── Data ───────────────────────────────────────────────────────────────────────
 for _p in [ROOT / 'data' / 'result.json', ROOT / 'data' / 'chat_export.json',
            ROOT / 'data' / 'chat_export.sample.json']:
     if _p.exists():
@@ -200,17 +209,14 @@ scores_norm  = scores_today / scores_today.max()
 future_hours = list(range(today_hour + 1, 24))
 best_hour    = max(future_hours, key=lambda h: scores_norm[h]) if future_hours else None
 
-# ── Output directory ───────────────────────────────────────────────────────────
-DOCS_DIR = ROOT / 'docs' / 'readme' / 'magic_model'
-DOCS_DIR.mkdir(parents=True, exist_ok=True)
-
 def _save(fig, filename: str, also_root_as: str | None = None) -> None:
     path = DOCS_DIR / filename
     fig.savefig(path, dpi=150, bbox_inches='tight', facecolor=BG)
-    if also_root_as:
+    if also_root_as and not _export_root:
         fig.savefig(ROOT / also_root_as, dpi=150, bbox_inches='tight', facecolor=BG)
     plt.close(fig)
-    print(f'  docs/readme/magic_model/{filename}')
+    rel = path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
+    print(f"  {rel.as_posix()}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -515,5 +521,130 @@ ax4.text(0.99, 1.02, 'normalised to peak = 1.0', transform=ax4.transAxes,
 fig4.tight_layout()
 _save(fig4, '04_historical_pattern.png')
 
-print(f'\nAll charts saved to docs/readme/magic_model/')
-print(f'Root copy:          magic_model_today.png')
+
+def _write_magic_json_specs() -> None:
+    """ECharts companion JSON under out/data/magic_model/ (when BUFFET_GRAPH_ROOT is set)."""
+    if not os.environ.get("BUFFET_GRAPH_ROOT", "").strip():
+        return
+    from chart_json import write_chart_spec
+
+    hour_labels = [f"{h:02d}:00" for h in range(24)]
+    hour_vals = [float(scores_norm[h]) for h in range(24)]
+    _best_lbl = (
+        GREEN
+        if best_hour is not None and float(scores_norm[best_hour]) >= 0.65
+        else GOLD
+    )
+    write_chart_spec(
+        "magic_model",
+        "01_today_heatmap.png",
+        {
+            "chart": "magicStrip",
+            "title": "Will there be food?",
+            "subtitle": (
+                f"{DOW_NAMES[today_dow]} {now.day} {MONTH_NAMES[today_month]} {now.year}"
+            ),
+            "semesterBadge": {
+                "text": sem_label.split("  ")[0],
+                "borderColor": sem_color,
+            },
+            "scores": hour_vals,
+            "currentHour": today_hour,
+            "bestNextHour": best_hour,
+            "bestNextLabelColor": _best_lbl,
+            "metrics": [
+                {
+                    "name": name,
+                    "weight": float(weight),
+                    "scoreText": f"{score:.0%}" if score is not None else "--",
+                    "tag": str(tag),
+                    "accentColor": _stripe_colors[i],
+                }
+                for i, (name, weight, score, tag) in enumerate(_metrics)
+            ],
+        },
+    )
+
+    week_mat = _week_norm.astype(float).copy()
+    for _c in range(today_hour):
+        week_mat[0, _c] = week_mat[0, _c] * 0.12
+    write_chart_spec(
+        "magic_model",
+        "02_week_heatmap.png",
+        {
+            "chart": "heatmap",
+            "title": "7-day food probability outlook",
+            "subtitle": "Globally normalised · dimmed cells = earlier today (already passed)",
+            "yCategories": _row_labels,
+            "xCategories": hour_labels,
+            "data": week_mat.tolist(),
+        },
+    )
+
+    _avg_r = float(scores_norm[today_hour:].mean()) if today_hour < 24 else float(scores_norm.mean())
+    _peak_r = float(scores_norm[today_hour:].max()) if today_hour < 24 else float(scores_norm.max())
+    _contrib_cats: list[str] = []
+    _contrib_vals: list[float] = []
+    for name, weight, score, context, *_ in _factor_scores:
+        sc = score if score is not None else float(scores_norm.mean())
+        _contrib_cats.append(f"{name} — {context}")
+        _contrib_vals.append(round(float(weight * sc), 5))
+    _gauge_msg = (
+        f"Avg likelihood (rest of today): {_avg_r:.0%}\n"
+        f"Peak remaining: {_peak_r:.0%}"
+        + (f" at {best_hour:02d}:00" if best_hour is not None else "")
+        + f"\n{sem_label.split('  ')[0]}"
+    )
+    write_chart_spec(
+        "magic_model",
+        "03_context_breakdown.png",
+        {
+            "chart": "composite",
+            "title": "What drives today's score",
+            "subtitle": "Weighted contributions + snapshot for hours still ahead",
+            "panels": [
+                {
+                    "chart": "barh",
+                    "title": "Metric contributions (weight × context)",
+                    "reverseY": True,
+                    "categories": _contrib_cats,
+                    "values": _contrib_vals,
+                },
+                {
+                    "chart": "message",
+                    "title": "Rest of today",
+                    "message": _gauge_msg,
+                },
+            ],
+        },
+    )
+
+    write_chart_spec(
+        "magic_model",
+        "04_historical_pattern.png",
+        {
+            "chart": "barGroup",
+            "title": "Historical food-post frequency by hour",
+            "subtitle": (
+                f"{DOW_NAMES[today_dow]}s ({len(df_dow):,} posts) vs all days ({len(df):,} posts) "
+                "· normalised to peak = 1"
+            ),
+            "categories": hour_labels,
+            "rotateX": 45,
+            "series": [
+                {"name": "All days", "values": p_hour.tolist(), "color": "#7eb8e8"},
+                {
+                    "name": f"{DOW_NAMES[today_dow]}s",
+                    "values": p_hour_dow.tolist(),
+                    "color": "#c4921c",
+                },
+            ],
+        },
+    )
+
+
+_write_magic_json_specs()
+
+print(f"\nAll charts saved under {DOCS_DIR}")
+if not _export_root:
+    print("Root copy: magic_model_today.png")

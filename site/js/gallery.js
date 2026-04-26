@@ -5,6 +5,7 @@
   "use strict";
 
   const SECTION_ORDER = [
+    "magic_model",
     "food_patterns",
     "weekly_alerts",
     "prediction_model",
@@ -17,6 +18,7 @@
     food_patterns: "Food patterns",
     weekly_alerts: "Weekly alerts",
     prediction_model: "Prediction model",
+    magic_model: "Today's food odds",
     clustering: "Clustering",
     location_viz: "Location",
     most_appreciated: "Most appreciated",
@@ -99,7 +101,9 @@
         if (spec.chart === "composite") {
           live.classList.add("card__echart--tall");
         }
-        if (spec.chart === "heatmap") {
+        if (spec.chart === "magicStrip") {
+          live.classList.add("card__echart--heatmap");
+        } else if (spec.chart === "heatmap") {
           const sc = document.createElement("div");
           sc.className = "card__echart-scroll";
           live.classList.add("card__echart--heatmap");
@@ -162,6 +166,9 @@
         const art = document.createElement("article");
         art.className = "card";
         art.style.setProperty("--i", String(i % 5));
+        if (key === "magic_model" && i === 0) {
+          art.classList.add("card--strip");
+        }
 
         const cap = document.createElement("h3");
         cap.className = "card__caption";
