@@ -3,6 +3,8 @@
 ![Hour vs day of week heatmap](docs/readme/food_patterns/03_hour_vs_day_of_week_heatmap.png)
 
 The struggle is real. So is the data.
+For interactive website, check out:
+https://buffet.popped.dev
 
 **This repo:**  
 - Reads Telegram group food raid data  
